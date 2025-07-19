@@ -1,0 +1,7 @@
+.config
+.config.old
+.defconfig
+
+*.bin
+
+output/

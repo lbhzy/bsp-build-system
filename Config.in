@@ -1,0 +1,59 @@
+#
+# BSP 配置菜单
+#
+
+mainmenu "BSP 构建配置"
+
+
+choice
+    prompt "Board Select"
+    default BOARD_DR2820
+
+    config BOARD_DR2820
+        bool "DR2820"
+
+    config BOARD_DR5400
+        bool "DR5400"
+
+    config BOARD_DR5800
+        bool "DR5800"
+    
+    config BOARD_DR1800
+        bool "DR1800"
+endchoice
+
+
+menuconfig LOADER
+    bool "Loader"
+
+    config LOADER12
+        bool "Use U-Boot as bootloader" if LOADER
+        default y
+
+
+menuconfig UBOOT
+    bool "U-Boot"
+
+    config kjk
+        bool "Use U-Boot as bootloader" if UBOOT
+        default y
+
+
+menuconfig KERNEL
+    bool "Linux Kernel"
+
+    config KERNEL_VERSION
+        string "Kernel version" if KERNEL
+        default "5.10"
+
+
+menuconfig ROOTFS
+    bool "Rootfs"
+
+    config ROOTFS_TYPE
+        string "Root filesystem type" if ROOTFS
+        default "ext4"
+
+
+config CROSS
+    string "Toolchain Path"

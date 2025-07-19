@@ -1,0 +1,2 @@
+all:
+	@touch loader.bin
