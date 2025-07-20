@@ -11,15 +11,10 @@ KERNEL_BIN := $(KERNEL_DIR)/zImage.bin
 ROOTFS_DIR := rootfs
 ROOTFS_BIN := $(ROOTFS_DIR)/initramfs.cpio.gz
 
-KCONFIG := Config.in
-DEFCONFIG := .defconfig
-SAVECONFIG := $(shell cat $(DEFCONFIG))
+PHONY += all help loader uboot kernel rootfs pack clean
 
-
-PHONY += all
 all: loader uboot kernel rootfs pack
 
-PHONY += help
 help:
 	@echo  'BSP 构建框架 v0.0.1'
 	@echo  ''
@@ -44,76 +39,48 @@ help:
 	@echo  '清理目标:'
 	@echo  '  clean             - 清理编译产物'
 
-PHONY += loader
 loader:
 	@echo 构建loader
 	@make -C $(LOADER_DIR)
 	@cp $(LOADER_BIN) $(OUTDIR)
 
-PHONY += uboot
 uboot:
 	@echo 构建uboot
 
-PHONY += kernel
 kernel:
 	@echo 构建kernel
 
-PHONY += rootfs
 rootfs:
 	@echo 构建rootfs
 
-PHONY += pack
 pack:
 	@echo 开始打包
 
-PHONY += clean
 clean:
 	@echo 执行清理
 
-# 检查命令函数
-check-command = $(if $(shell command -v $(1) 2>/dev/null),,$(error 命令 '$1' 未找到，请先安装))
-
-# 加载默认配置
-define load_defconfig
-	@if [ -f "$1" ]; then \
-		kconfig-conf --defconfig="$1" $(KCONFIG) \
-		&& echo "已加载默认配置 '$1'" \
-		&& echo $1 > $(DEFCONFIG); \
-	else \
-		echo "默认配置 '$1' 不存在"; \
-		exit 1; \
-	fi
-endef
 
 #
 # Kconfig/menuconfig 支持
 #
+KCONFIG := Config.in
 
-# 依赖伪目标的目标相当于伪目标
-PHONY += kconfig
-kconfig:
-	@$(call check-command, kconfig)
+PHONY += menuconfig nconfig defconfig savedefconfig
 
-menuconfig: kconfig
-	@kconfig-mconf $(KCONFIG)
+menuconfig:
+	kconfig-mconf $(KCONFIG)
 
-nconfig: kconfig
-	@kconfig-nconf $(KCONFIG)
+nconfig:
+	kconfig-nconf $(KCONFIG)
 
-%_defconfig: kconfig
-	@$(call load_defconfig,configs/$@)		# 逗号后不要加空格！！！
+%_defconfig:
+	kconfig-conf --defconfig=configs/$@ $(KCONFIG)
 
-defconfig: kconfig
-	@$(call load_defconfig,configs/$@)
+defconfig:
+	kconfig-conf --defconfig=configs/$@ $(KCONFIG)
 
-savedefconfig: kconfig $(DEFCONFIG)
-	@if [ -f "$(SAVECONFIG)" ]; then \
-		kconfig-conf --savedefconfig=$(SAVECONFIG) $(KCONFIG) \
-		&& echo "已保存最小配置到 '$(SAVECONFIG)'"; \
-	else \
-		echo "默认配置 '$(SAVECONFIG)' 不存在"; \
-		exit 1; \
-	fi
+savedefconfig:
+	kconfig-conf --$@=defconfig $(KCONFIG)
 
 
 .PHONY: $(PHONY)
