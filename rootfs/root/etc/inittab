@@ -1,0 +1,17 @@
+# <id>:<runlevels>:<action>:<process>
+# 
+# <id>        进程使用的tty设备，为空时继承init进程的tty
+# <runlevels> busybox不解析此字段，留空就行
+# <action>    可选值          运行时机        
+#             sysinit     - 最先执行，阻塞式
+#             wait        - 在sysinit之后执行，阻塞式
+#             once        - 在wait之后执行，非阻塞式
+#             respawn     - 在once之后执行，进程退出后会重新启动
+#             askfirst    - 同respawn，但进程启动前会等待<Enter>按下
+#             ctrlaltdel  - 按Ctrl-Alt-Del执行，执行完重新开始respawn和askfirst动作
+#             shutdown    - 重新或关机时（即init收到SIGUSR1/SIGTERM/SIGUSR2信号）执行
+#             restart     - init收到SIGQUIT信号后，执行shutdown的动作完成后，使用这个进程替换init
+# <process>   要执行的命令及其参数
+
+::sysinit:/etc/init.d/rcS
+::respawn:-/bin/sh

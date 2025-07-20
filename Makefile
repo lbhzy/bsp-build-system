@@ -1,7 +1,7 @@
 # 包含 Kconfig 生成的配置
 -include .config
 
-OUTDIR := output/
+OUTDIR := output
 LOADER_DIR := loader
 LOADER_BIN := $(LOADER_DIR)/loader.bin
 UBOOT_DIR := uboot
@@ -11,7 +11,7 @@ KERNEL_BIN := $(KERNEL_DIR)/zImage.bin
 ROOTFS_DIR := rootfs
 ROOTFS_BIN := $(ROOTFS_DIR)/initramfs.cpio.gz
 
-PHONY += all help loader uboot kernel rootfs pack clean
+PHONY += all help env loader uboot kernel rootfs pack clean
 
 all: loader uboot kernel rootfs pack
 
@@ -39,21 +39,27 @@ help:
 	@echo  '清理目标:'
 	@echo  '  clean             - 清理编译产物'
 
-loader:
+env:
+	@mkdir -p output
+
+loader: env
 	@echo 构建loader
 	@make -C $(LOADER_DIR)
 	@cp $(LOADER_BIN) $(OUTDIR)
 
-uboot:
+uboot: env
 	@echo 构建uboot
 
-kernel:
+kernel: env
 	@echo 构建kernel
 
-rootfs:
+rootfs: env
 	@echo 构建rootfs
+	cp -r $(ROOTFS_DIR)/root/. $(OUTDIR)/rootfs
+	bash -c 'mkdir -p $(OUTDIR)/rootfs/{proc,sys,dev,tmp}'
+	cd $(OUTDIR)/rootfs && find . | cpio --quiet -o -H newc  > ../initramfs.cpio
 
-pack:
+pack: env
 	@echo 开始打包
 
 clean:

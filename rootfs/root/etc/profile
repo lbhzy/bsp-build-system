@@ -1,0 +1,5 @@
+alias ll="ls -l"
+
+echo "#######################"
+echo "#  Welcome to rootfs  #"
+echo "#######################"
