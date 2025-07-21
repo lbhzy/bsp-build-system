@@ -3,5 +3,6 @@
 defconfig
 
 *.bin
+.*_lastest_time
 
 output/
