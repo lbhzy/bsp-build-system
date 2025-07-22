@@ -6,3 +6,5 @@ mount -t devtmpfs none /dev
 mount -t tmpfs none /tmp
 
 echo "Kernel boot time: $(cut -d' ' -f1 /proc/uptime) s"
+
+echo mochi > /proc/sys/kernel/hostname
