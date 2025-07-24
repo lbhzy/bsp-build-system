@@ -152,7 +152,7 @@ rootfs:
 	mkdir -p $(OUTDIR)
 	cp -r $(ROOTFS_DIR)/root/. $(OUTDIR)/rootfs
 	bash -c 'mkdir -p $(OUTDIR)/rootfs/{proc,sys,dev,tmp}'
-	cd $(OUTDIR)/rootfs && find . | cpio --quiet -o -H newc  > ../initramfs.cpio
+	cd $(OUTDIR)/rootfs && fakeroot sh -c "find . | cpio --quiet -o -H newc  > ../initramfs.cpio"
 	$(call end)
 
 pack:
