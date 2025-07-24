@@ -45,111 +45,125 @@ help:
 	@echo  '清理目标:'
 	@echo  '  clean             - 清理编译产物'
 
-env:
-	@echo $(call get_lastest_time,$(LOADER_DIR))
-	@echo `cat .loader_lastest_time 2> /dev/null || echo 0`
-	@mkdir -p output
+# define get_lastest_time	
+# `find $1 -type f -printf "%T@\n" | sort -nr | head -n1`
+# endef
+# define save_lastest_time	
+# `cat .$1_lastest_time 2> /dev/null || echo 0`
+# endef
+# define uppercase
+# $(shell echo $(1) | tr 'a-z' 'A-Z')
+# endef
 
-define get_lastest_time	
-`find $1 -type f -printf "%T@\n" | sort -nr | head -n1`
+# loader:
+# 	@if [ $(call get_lastest_time,$(LOADER_DIR)) \
+# 			= $(call save_lastest_time,$@) ]; then \
+# 		echo 无需构建 $@; \
+# 	else \
+# 		echo 开始构建 $@ && \
+# 		make -C $(LOADER_DIR) -j$(shell nproc) && \
+# 		mkdir -p $(OUTDIR) && \
+# 		cp $(LOADER_BIN) $(OUTDIR) && \
+# 		echo $(call get_lastest_time,$(LOADER_DIR)) > .$@_lastest_time; \
+# 	fi
+
+# uboot:
+# 	@if [ $(call get_lastest_time,$(UBOOT_DIR)) \
+# 			= $(call save_lastest_time,$@) ]; then \
+# 		echo 无需构建 $@; \
+# 	else \
+# 		echo 开始构建 $@ && \
+# 		make -C $(UBOOT_DIR) $(UBOOT_DEFCONFIG) && \
+# 		make -C $(UBOOT_DIR) -j$(shell nproc) && \
+# 		mkdir -p $(OUTDIR) && \
+# 		cp $(UBOOT_BIN) $(OUTDIR) && \
+# 		echo $(call get_lastest_time,$(UBOOT_DIR)) > .$@_lastest_time; \
+# 	fi
+
+# kernel:
+# 	@if [ $(call get_lastest_time,$(KERNEL_DIR)) \
+# 			= $(call save_lastest_time,$@) ]; then \
+# 		echo 无需构建 $@; \
+# 	else \
+# 		echo 开始构建 $@ && \
+# 		make -C $(KERNEL_DIR) $(KERNEL_DEFCONFIG) && \
+# 		make -C $(KERNEL_DIR) -j$(shell nproc) && \
+# 		mkdir -p $(OUTDIR) && \
+# 		cp $(KERNEL_BIN) $(OUTDIR) && \
+# 		echo $(call get_lastest_time,$(KERNEL_DIR)) > .$@_lastest_time; \
+# 	fi
+
+# rootfs:
+# 	@if [ $(call get_lastest_time,$(ROOTFS_DIR)) \
+# 			= $(call save_lastest_time,$@) ]; then \
+# 		echo 无需构建 $@; \
+# 	else \
+# 		echo 开始构建 $@ && \
+# 		make -C $(BUSYBOX_DIR) $(BUSYBOX_DEFCONFIG) && \
+# 		make -C $(BUSYBOX_DIR) -j$(shell nproc) && \
+# 		make -C $(BUSYBOX_DIR) install && \
+# 		mkdir -p $(OUTDIR) && \
+# 		cp -r $(ROOTFS_DIR)/root/. $(OUTDIR)/rootfs && \
+# 		bash -c 'mkdir -p $(OUTDIR)/rootfs/{proc,sys,dev,tmp}' && \
+# 		cd $(OUTDIR)/rootfs && \
+# 		find . | cpio --quiet -o -H newc  > ../initramfs.cpio && \
+# 		cd - > /dev/null && \
+# 		echo $(call get_lastest_time,$(ROOTFS_DIR)) > .$@_lastest_time; \
+# 	fi
+
+define start
+@echo "\033[44m开始构建 $@\033[0m"
+@echo -n "$$(date +'%s')" > /tmp/starttime
 endef
-define save_lastest_time	
-`cat .$1_lastest_time 2> /dev/null || echo 0`
-endef
-define uppercase
-$(shell echo $(1) | tr 'a-z' 'A-Z')
+
+define end
+@cost=$$(($$(date +'%s') - $$(cat /tmp/starttime)));\
+echo "\033[42m$@ 构建完成，耗时 $$cost s\033[0m"
 endef
 
 loader:
-	@if [ $(call get_lastest_time,$(LOADER_DIR)) \
-			= $(call save_lastest_time,$@) ]; then \
-		echo 无需构建 $@; \
-	else \
-		echo 开始构建 $@ && \
-		make -C $(LOADER_DIR) -j$(shell nproc) && \
-		mkdir -p $(OUTDIR) && \
-		cp $(LOADER_BIN) $(OUTDIR) && \
-		echo $(call get_lastest_time,$(LOADER_DIR)) > .$@_lastest_time; \
-	fi
+	$(call start)
+	make -C $(LOADER_DIR) -j$(shell nproc)
+	mkdir -p $(OUTDIR)
+	cp $(LOADER_BIN) $(OUTDIR)
+	$(call end)
 
 uboot:
-	@if [ $(call get_lastest_time,$(UBOOT_DIR)) \
-			= $(call save_lastest_time,$@) ]; then \
-		echo 无需构建 $@; \
-	else \
-		echo 开始构建 $@ && \
-		make -C $(UBOOT_DIR) $(UBOOT_DEFCONFIG) && \
-		make -C $(UBOOT_DIR) -j$(shell nproc) && \
-		mkdir -p $(OUTDIR) && \
-		cp $(UBOOT_BIN) $(OUTDIR) && \
-		echo $(call get_lastest_time,$(UBOOT_DIR)) > .$@_lastest_time; \
-	fi
+	$(call start)
+	make -C $(UBOOT_DIR) $(UBOOT_DEFCONFIG)
+	make -C $(UBOOT_DIR) -j$(shell nproc)
+	mkdir -p $(OUTDIR)
+	cp $(UBOOT_BIN) $(OUTDIR)
+	$(call end)
 
 kernel:
-	@if [ $(call get_lastest_time,$(KERNEL_DIR)) \
-			= $(call save_lastest_time,$@) ]; then \
-		echo 无需构建 $@; \
-	else \
-		echo 开始构建 $@ && \
-		make -C $(KERNEL_DIR) $(KERNEL_DEFCONFIG) && \
-		make -C $(KERNEL_DIR) -j$(shell nproc) && \
-		mkdir -p $(OUTDIR) && \
-		cp $(KERNEL_BIN) $(OUTDIR) && \
-		echo $(call get_lastest_time,$(KERNEL_DIR)) > .$@_lastest_time; \
-	fi
+	$(call start)
+	make -C $(KERNEL_DIR) $(KERNEL_DEFCONFIG)
+	make -C $(KERNEL_DIR) -j$(shell nproc)
+	mkdir -p $(OUTDIR)
+	cp $(KERNEL_BIN) $(OUTDIR)
+	$(call end)
 
 rootfs:
-	@if [ $(call get_lastest_time,$(ROOTFS_DIR)) \
-			= $(call save_lastest_time,$@) ]; then \
-		echo 无需构建 $@; \
-	else \
-		echo 开始构建 $@ && \
-		make -C $(BUSYBOX_DIR) $(BUSYBOX_DEFCONFIG) && \
-		make -C $(BUSYBOX_DIR) -j$(shell nproc) && \
-		make -C $(BUSYBOX_DIR) install && \
-		mkdir -p $(OUTDIR) && \
-		cp -r $(ROOTFS_DIR)/root/. $(OUTDIR)/rootfs && \
-		bash -c 'mkdir -p $(OUTDIR)/rootfs/{proc,sys,dev,tmp}' && \
-		cd $(OUTDIR)/rootfs && \
-		find . | cpio --quiet -o -H newc  > ../initramfs.cpio && \
-		cd - > /dev/null && \
-		echo $(call get_lastest_time,$(ROOTFS_DIR)) > .$@_lastest_time; \
-	fi
-
-# uboot:
-# 	@echo 构建uboot
-# 	make -C $(UBOOT_DIR) $(UBOOT_DEFCONFIG)
-# 	make -C $(UBOOT_DIR) -j$(shell nproc)
-# 	mkdir -p $(OUTDIR)
-# 	cp $(UBOOT_BIN) $(OUTDIR)
-# 	@echo 构建uboot完成
-
-# kernel:
-# 	@echo 构建kernel
-# 	make -C $(KERNEL_DIR) $(KERNEL_DEFCONFIG)
-# 	make -C $(KERNEL_DIR) -j$(shell nproc)
-# 	mkdir -p $(OUTDIR)
-# 	cp $(KERNEL_BIN) $(OUTDIR)
-
-# rootfs:
-# 	@echo 构建rootfs
-# 	make -C $(BUSYBOX_DIR) $(BUSYBOX_DEFCONFIG)
-# 	make -C $(BUSYBOX_DIR) -j$(shell nproc)
-# 	make -C $(BUSYBOX_DIR) install
-# 	mkdir -p $(OUTDIR)
-# 	cp -r $(ROOTFS_DIR)/root/. $(OUTDIR)/rootfs
-# 	bash -c 'mkdir -p $(OUTDIR)/rootfs/{proc,sys,dev,tmp}'
-# 	cd $(OUTDIR)/rootfs && find . | cpio --quiet -o -H newc  > ../initramfs.cpio
+	$(call start)
+	make -C $(BUSYBOX_DIR) $(BUSYBOX_DEFCONFIG)
+	make -C $(BUSYBOX_DIR) -j$(shell nproc)
+	make -C $(BUSYBOX_DIR) install
+	mkdir -p $(OUTDIR)
+	cp -r $(ROOTFS_DIR)/root/. $(OUTDIR)/rootfs
+	bash -c 'mkdir -p $(OUTDIR)/rootfs/{proc,sys,dev,tmp}'
+	cd $(OUTDIR)/rootfs && find . | cpio --quiet -o -H newc  > ../initramfs.cpio
+	$(call end)
 
 pack:
-	@echo 开始打包
+	@echo "\033[44m开始打包 $@\033[0m"
 
 clean:
-	@echo 执行清理
+	@echo "\033[44m执行清理 $@\033[0m"
 	make -C $(UBOOT_DIR) clean
 	make -C $(KERNEL_DIR) clean
 	make -C $(BUSYBOX_DIR) clean
-	rm -rf $(OUTDIR)
+	rm -rf $(OUTDIR) defconfig
 
 run:
 # 按ctrl+a 再按x 退出qemu
