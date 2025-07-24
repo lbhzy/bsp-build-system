@@ -2,13 +2,14 @@
 -include .config
 
 OUTDIR := output
-INSTALL_DIR := $(OUTDIR)/rootfs
+INSTALL_DIR := $(shell realpath $(OUTDIR)/rootfs)
 LOADER_DIR := loader
 LOADER_BIN := $(LOADER_DIR)/loader.bin
 UBOOT_DIR := uboot
 UBOOT_BIN := $(UBOOT_DIR)/u-boot.bin
 KERNEL_DIR := kernel
 KERNEL_BIN := $(KERNEL_DIR)/arch/arm64/boot/Image
+APP_DIR := app
 ROOTFS_DIR := rootfs
 ROOTFS_BIN := $(ROOTFS_DIR)/initramfs.cpio.gz
 BUSYBOX_DIR := $(ROOTFS_DIR)/busybox
@@ -17,9 +18,9 @@ UBOOT_DEFCONFIG := qemu_arm64_defconfig
 KERNEL_DEFCONFIG := my_defconfig
 BUSYBOX_DEFCONFIG := my_defconfig
 
-PHONY += all help env loader uboot kernel rootfs pack clean
+PHONY += all help env loader uboot kernel rootfs app pack clean
 
-all: loader uboot kernel rootfs pack
+all: loader uboot kernel rootfs app pack
 
 help:
 	@echo  'BSP 构建框架 v0.0.1'
@@ -155,6 +156,12 @@ rootfs:
 	cd $(OUTDIR)/rootfs && fakeroot sh -c "find . | cpio --quiet -o -H newc  > ../initramfs.cpio"
 	$(call end)
 
+app:
+	$(call start)
+	make -C $(APP_DIR) -j$(shell nproc)
+	make -C $(APP_DIR) install PREFIX=$(INSTALL_DIR)
+	$(call end)
+
 pack:
 	@echo "\033[44m开始打包 $@\033[0m"
 
@@ -163,6 +170,7 @@ clean:
 	make -C $(UBOOT_DIR) clean
 	make -C $(KERNEL_DIR) clean
 	make -C $(BUSYBOX_DIR) clean
+	make -C $(APP_DIR) clean
 	rm -rf $(OUTDIR) defconfig
 
 run:
