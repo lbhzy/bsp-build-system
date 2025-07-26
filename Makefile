@@ -113,13 +113,13 @@ help:
 # 	fi
 
 define start
-@echo "\033[44m开始构建 $@\033[0m"
-@echo -n "$$(date +'%s')" > /tmp/starttime
+	@printf "\033[44m开始构建 $@\033[0m\n"
+	@echo -n "$$(date +'%s')" > /tmp/starttime
 endef
 
 define end
-@cost=$$(($$(date +'%s') - $$(cat /tmp/starttime)));\
-echo "\033[42m$@ 构建完成，耗时 $$cost s\033[0m"
+	@cost=$$(($$(date +'%s') - $$(cat /tmp/starttime)));\
+	printf "\033[42m$@ 构建完成，耗时 $$cost s\033[0m\n"
 endef
 
 loader:
@@ -163,10 +163,10 @@ app:
 	$(call end)
 
 pack:
-	@echo "\033[44m开始打包 $@\033[0m"
+	@printf "\033[44m开始打包 $@\033[0m\n"
 
 clean:
-	@echo "\033[44m执行清理 $@\033[0m"
+	@printf "\033[44m执行清理 $@\033[0m\n"
 	make -C $(UBOOT_DIR) clean
 	make -C $(KERNEL_DIR) clean
 	make -C $(BUSYBOX_DIR) clean
