@@ -4,6 +4,35 @@
 
 mainmenu "BSP 构建配置"
 
+choice
+
+prompt "目标架构"
+# default ARCH_ARM
+
+config ARCH_ARM
+    bool "arm"
+
+config ARCH_AARCH64
+    bool "aarch64"
+
+config ARCH_RISCV
+    bool "riscv"
+
+config ARCH_X86
+    bool "x86"
+
+endchoice
+
+
+menu "工具链设置"
+
+config TOOLCHAIN_PATH
+    string "工具链路径"
+
+config TOOLCHAIN_PREFIX
+    string "工具链前缀"
+
+endmenu
 
 choice
     prompt "Board Select"
@@ -24,36 +53,35 @@ endchoice
 
 
 menuconfig LOADER
-    bool "Loader"
+bool "Loader"
 
-    config LOADER12
-        bool "Use U-Boot as bootloader" if LOADER
-        default y
+config LOADER12
+    bool "Use U-Boot as bootloader" if LOADER
+    default y
 
 
 menuconfig UBOOT
-    bool "U-Boot"
+bool "U-Boot"
 
-    config kjk
-        bool "Use U-Boot as bootloader" if UBOOT
-        default y
+config kjk
+    bool "Use U-Boot as bootloader" if UBOOT
+    default y
 
 
 menuconfig KERNEL
-    bool "Linux Kernel"
+bool "Linux Kernel"
 
-    config KERNEL_VERSION
-        string "Kernel version" if KERNEL
-        default "5.10"
+config KERNEL_VERSION
+    string "Kernel version" if KERNEL
+    default "5.10"
 
 
 menuconfig ROOTFS
-    bool "Rootfs"
+bool "Rootfs"
 
-    config ROOTFS_TYPE
-        string "Root filesystem type" if ROOTFS
-        default "ext4"
+config ROOTFS_TYPE
+    string "Root filesystem type" if ROOTFS
+    default "ext4"
 
 
-config CROSS
-    string "Toolchain Path"
+
