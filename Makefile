@@ -1,18 +1,18 @@
 # 包含 Kconfig 生成的配置
 -include .config
 
-ifeq ($(CONFIG_ARCH_ARM), "y")
+ifeq ($(CONFIG_ARCH_ARM), y)
 	export ARCH = arm
-else ifneq ($(CONFIG_ARCH_AARCH64), "y")
+else ifeq ($(CONFIG_ARCH_AARCH64), y)
 	export ARCH = arm64
-else ifneq ($(CONFIG_ARCH_x86), "y")
+else ifeq ($(CONFIG_ARCH_x86), y)
 	export ARCH = x86
-else ifneq ($(CONFIG_ARCH_RISCV), "y")
+else ifeq ($(CONFIG_ARCH_RISCV), y)
 	export ARCH = riscv
 endif
 
-TOOLCHAIN_PATH := $(call qstrip,$(CONFIG_TOOLCHAIN_PATH))
-TOOLCHAIN_PREFIX := $(call qstrip,$(CONFIG_TOOLCHAIN_PREFIX))
+TOOLCHAIN_PATH := $(subst ",,$(CONFIG_TOOLCHAIN_PATH))
+TOOLCHAIN_PREFIX := $(subst ",,$(CONFIG_TOOLCHAIN_PREFIX))
 export PATH := $(TOOLCHAIN_PATH):$(PATH)
 export CROSS_COMPILE := $(TOOLCHAIN_PREFIX)
 
