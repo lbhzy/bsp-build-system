@@ -20,14 +20,16 @@ UBOOT_DEFCONFIG := $(CONFIG_UBOOT_DEFCONFIG)
 KERNEL_DEFCONFIG := $(CONFIG_KERNEL_DEFCONFIG)
 BUSYBOX_DEFCONFIG := $(CONFIG_BUSYBOX_DEFCONFIG)
 
+
+TOPDIR := $(shell realpath .)
 OUTDIR := output
-INSTALL_DIR := $(shell realpath $(OUTDIR)/rootfs)
+INSTALL_DIR := $(TOPDIR)/$(OUTDIR)/rootfs
 LOADER_DIR := loader
 LOADER_BIN := $(LOADER_DIR)/loader.bin
 UBOOT_DIR := uboot
 UBOOT_BIN := $(UBOOT_DIR)/u-boot.bin
 KERNEL_DIR := kernel
-KERNEL_BIN := $(KERNEL_DIR)/arch/arm64/boot/Image
+KERNEL_BIN := $(KERNEL_DIR)/arch/$(ARCH)/boot/Image
 APP_DIR := app
 ROOTFS_DIR := rootfs
 ROOTFS_BIN := $(ROOTFS_DIR)/initramfs.cpio.gz
@@ -165,7 +167,7 @@ rootfs:
 	$(call start)
 	make -C $(BUSYBOX_DIR) $(BUSYBOX_DEFCONFIG)
 	make -C $(BUSYBOX_DIR) -j$(shell nproc)
-	make -C $(BUSYBOX_DIR) install
+	make -C $(BUSYBOX_DIR) install CONFIG_PREFIX=$(INSTALL_DIR)
 	mkdir -p $(OUTDIR)
 	cp -r $(ROOTFS_DIR)/root/. $(OUTDIR)/rootfs
 	bash -c 'mkdir -p $(OUTDIR)/rootfs/{proc,sys,dev,tmp}'
