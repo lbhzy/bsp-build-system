@@ -16,6 +16,10 @@ TOOLCHAIN_PREFIX := $(subst ",,$(CONFIG_TOOLCHAIN_PREFIX))
 export PATH := $(TOOLCHAIN_PATH):$(PATH)
 export CROSS_COMPILE := $(TOOLCHAIN_PREFIX)
 
+UBOOT_DEFCONFIG := $(CONFIG_UBOOT_DEFCONFIG)
+KERNEL_DEFCONFIG := $(CONFIG_KERNEL_DEFCONFIG)
+BUSYBOX_DEFCONFIG := $(CONFIG_BUSYBOX_DEFCONFIG)
+
 OUTDIR := output
 INSTALL_DIR := $(shell realpath $(OUTDIR)/rootfs)
 LOADER_DIR := loader
@@ -29,9 +33,6 @@ ROOTFS_DIR := rootfs
 ROOTFS_BIN := $(ROOTFS_DIR)/initramfs.cpio.gz
 BUSYBOX_DIR := $(ROOTFS_DIR)/busybox
 
-UBOOT_DEFCONFIG := qemu_arm64_defconfig
-KERNEL_DEFCONFIG := my_defconfig
-BUSYBOX_DEFCONFIG := my_defconfig
 
 PHONY += all help env loader uboot kernel rootfs app pack clean
 

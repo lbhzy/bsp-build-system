@@ -1,87 +1,106 @@
-#
-# BSP 配置菜单
-#
-
-mainmenu "BSP 构建配置"
+mainmenu "BSP Configuration"
 
 choice
+prompt "Target Architecture"
+    config ARCH_ARM
+        bool "arm"
 
-prompt "目标架构"
-# default ARCH_ARM
+    config ARCH_AARCH64
+        bool "aarch64"
 
-config ARCH_ARM
-    bool "arm"
+    config ARCH_RISCV
+        bool "riscv"
 
-config ARCH_AARCH64
-    bool "aarch64"
-
-config ARCH_RISCV
-    bool "riscv"
-
-config ARCH_X86
-    bool "x86"
-
+    config ARCH_X86
+        bool "x86"
 endchoice
 
 
-menu "工具链设置"
+menu "Toolchain"
+    config TOOLCHAIN_PATH
+        string "Toolchain path"
 
-config TOOLCHAIN_PATH
-    string "工具链路径"
-
-config TOOLCHAIN_PREFIX
-    string "工具链前缀"
-
+    config TOOLCHAIN_PREFIX
+        string "Toolchain prefix"
 endmenu
 
-choice
-    prompt "Board Select"
-    default BOARD_DR2820
 
-    config BOARD_DR2820
-        bool "DR2820"
+menu "Loader"
+    config DEFCONFIG
+        bool "Use U-Boot as bootloader"
+        default y
+endmenu
 
-    config BOARD_DR5400
-        bool "DR5400"
 
-    config BOARD_DR5800
-        bool "DR5800"
+menu "U-Boot"
+    config UBOOT_DEFCONFIG
+        string "Default configuration"
+endmenu
+
+
+menu "Linux Kernel"
+    config KERNEL_DEFCONFIG
+        string "Default configuration"
+endmenu
+
+
+menu "Root Filesystem"
+    choice
+    prompt "Skeleton"
+        config ROOTFS_SKELETON_BR
+            bool "Buildroot"
+
+        config ROOTFS_SKELETON_CUSTOM
+            bool "Custom (base on busybox)"
+
+        config ROOTFS_SKELETON_TOYBOX
+            bool "Toybox"
+    endchoice
+
+    config BUSYBOX_DEFCONFIG
+        string "Busybox defconfig name"
+        depends on ROOTFS_SKELETON_CUSTOM
+
+    config BUILDROOT_DEFCONFIG
+        string "Buildroot defconfig name"
+        depends on ROOTFS_SKELETON_BR
+
+    config TOYBOX_DEFCONFIG
+        string "Toybox defconfig name"
+        depends on ROOTFS_SKELETON_TOYBOX
+
+    comment "Root filesystem images"
     
-    config BOARD_DR1800
-        bool "DR1800"
-endchoice
+    config ROOTFS_IMAGE_CPIO
+        bool "cpio (initramfs)"
+        default y
+    
+    config ROOTFS_IMAGE_SQUASHFS
+        bool "squashfs"
+    
+    config ROOTFS_IMAGE_TAR
+        bool "tar"
+        default y
+    
+    config ROOTFS_IMAGE_EXT4
+        bool "ext4"
+endmenu
 
 
-menuconfig LOADER
-bool "Loader"
+menu "Application"
+    config APP_4G
+        bool "4G function"
+        default y
+    
+    config APP_LOGSAVE
+        bool "Logsave function"
+        default y
 
-config LOADER12
-    bool "Use U-Boot as bootloader" if LOADER
-    default y
-
-
-menuconfig UBOOT
-bool "U-Boot"
-
-config kjk
-    bool "Use U-Boot as bootloader" if UBOOT
-    default y
-
-
-menuconfig KERNEL
-bool "Linux Kernel"
-
-config KERNEL_VERSION
-    string "Kernel version" if KERNEL
-    default "5.10"
+    config APP_P2P
+        bool "P2P function"
+        default y
+endmenu
 
 
-menuconfig ROOTFS
-bool "Rootfs"
-
-config ROOTFS_TYPE
-    string "Root filesystem type" if ROOTFS
-    default "ext4"
-
-
-
+menu "Pack image"
+endmenu
