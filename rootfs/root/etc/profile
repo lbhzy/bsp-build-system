@@ -1,5 +1,7 @@
 alias ll="ls -l"
 
+export PS1='\x1b[1;32m\u@\h\x1b[0m:\x1b[1;34m\w\x1b[0m\$ '
+
 echo "#######################"
 echo "#  Welcome to rootfs  #"
 echo "#######################"
